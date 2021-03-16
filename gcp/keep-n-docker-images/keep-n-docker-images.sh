@@ -3,6 +3,13 @@
 IMAGE=$1
 MAX=$2
 
+echo "DEBUG: This is github home => $( ls -la /github/home )"
+echo "DEBUG: This is the content of GOOGLE_APPLICATION_CREDENTIALS => ${GOOGLE_APPLICATION_CREDENTIALS}"
+echo "DEBUG: Show 'ls' for GOOGLE_APPLICATION_CREDENTIALS => $(ls -la $GOOGLE_APPLICATION_CREDENTIALS) "
+echo "DEBUG: Show gcloud auth list => $(gcloud auth list)"
+echo "DEBUG: Show gcloud config list => $(gcloud config list)"
+
+
 read -r -d " " -a output <<< "$(gcloud container images list-tags "$IMAGE" --format="value(TAGS)")"
 echo "Found ${#output[@]} Images of ${IMAGE} in the registry ..."
 if [[ ${#output[@]} -gt ${MAX} ]]; then
