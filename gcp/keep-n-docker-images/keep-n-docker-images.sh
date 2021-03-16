@@ -4,8 +4,10 @@ IMAGE=$1
 MAX=$2
 
 
+email=$(echo "$GOOGLE_APPLICATION_CREDENTIALS" | jq .client_email)
+
 gcloud auth activate-service-account \
-    github-actions@gcp-workplace-dev.iam.gserviceaccount.com \
+    "$email" \
     --key-file "${GOOGLE_APPLICATION_CREDENTIALS}"
 
 
