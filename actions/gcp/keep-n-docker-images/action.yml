@@ -1,0 +1,19 @@
+name: 'Keep N Docker Images'
+description: 'Keep only "n" of the latest docker images in the gcp registry of a project.'
+inputs:
+  image:
+    description: 'The Name of the base image (without any tag or sha checksum)'
+    required: true
+  max:
+    description: 'How many latest Images keep at max?'
+    required: true
+    default: '10'
+outputs:
+  deleted_images:
+    description: 'The Number of deleted Docker Images. Could be zero or more.'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.image }}
+    - ${{ inputs.max }}
