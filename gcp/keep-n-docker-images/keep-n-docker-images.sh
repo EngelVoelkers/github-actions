@@ -4,10 +4,20 @@ IMAGE=$1
 MAX=$2
 
 echo "DEBUG: This is github home => $( ls -la /github/home )"
-echo "DEBUG: This is the content of GOOGLE_APPLICATION_CREDENTIALS => ${GOOGLE_APPLICATION_CREDENTIALS}"
-echo "DEBUG: Show 'ls' for GOOGLE_APPLICATION_CREDENTIALS => $(ls -la $GOOGLE_APPLICATION_CREDENTIALS) "
-echo "DEBUG: Show gcloud auth list => $(gcloud auth list)"
-echo "DEBUG: Show gcloud config list => $(gcloud config list)"
+echo "DEBUG: This is github workplace => $( ls -la /github/workplace )"
+#echo "DEBUG: This is the content of GOOGLE_APPLICATION_CREDENTIALS => ${GOOGLE_APPLICATION_CREDENTIALS}"
+#echo "DEBUG: Show 'ls' for GOOGLE_APPLICATION_CREDENTIALS => $(ls -la $GOOGLE_APPLICATION_CREDENTIALS) "
+#echo "DEBUG: Show gcloud auth list => $(gcloud auth list)"
+#echo "DEBUG: Show gcloud config list => $(gcloud config list)"
+
+
+mkdir -p ~/.config/gcloud/configurations/
+cat > ~/.config/gcloud/configurations/config_default << EOF
+[core]
+account = github-actions@gcp-workplace-dev.iam.gserviceaccount.com
+project = gcp-workplace-dev
+
+EOF
 
 
 read -r -d " " -a output <<< "$(gcloud container images list-tags "$IMAGE" --format="value(TAGS)")"
