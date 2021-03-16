@@ -4,11 +4,9 @@ IMAGE=$1
 MAX=$2
 
 
-email=$(echo "$GOOGLE_APPLICATION_CREDENTIALS" | jq .client_email)
+#email=$(jq .client_email "$GOOGLE_APPLICATION_CREDENTIALS")
 
-gcloud auth activate-service-account \
-    "$email" \
-    --key-file "${GOOGLE_APPLICATION_CREDENTIALS}"
+gcloud auth activate-service-account --key-file "${GOOGLE_APPLICATION_CREDENTIALS}"
 
 
 read -r -d " " -a output <<< "$(gcloud container images list-tags "$IMAGE" --format="value(TAGS)")"
