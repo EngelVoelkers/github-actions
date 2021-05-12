@@ -1,0 +1,66 @@
+name: 'Bootstrap VM Images'
+description: 'Bootstrap VM Images with a given script'
+inputs:
+  image_name:
+    description: 'The Name of the Image'
+    required: true
+  zone:
+    description: 'The gcp zone to use.'
+    required: true
+  network:
+    description: 'The network id to use.'
+    required: true
+  machine_type:
+    description: 'The compute machine type to use'
+    required: true
+  subnetwork:
+    description: 'The subnetwork id to use.'
+    required: true
+  tags:
+    description: 'The (Network) Tags to use.'
+    required: false
+  project:
+    description: 'The GCP project to use.'
+    required: true
+  scopes:
+    description: 'The VM scopes needed while executing the script.'
+    required: false
+  labels:
+    description: 'The Labels you want to assign to the creating VM.'
+    required: false
+  from_image:
+    description: 'The base image you want to fork from.'
+    default: 'debian-10'
+    required: false
+  from_image_project:
+    description: 'The project where the base image is located.'
+    default: 'debian-cloud'
+    required: false
+  script:
+    description: 'The url of the script you want to use to provision your image'
+    required: true
+  variables:
+    description: 'Define comma delimited key=value pairs that gets exported to the script as environment variables.'
+    required: false
+  os_family:
+    description: 'The os family used to store the new image.'
+    required: true
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - "-i ${{ inputs.image_name }}"
+    - "-z ${{ inputs.zone }}"
+    - "-n ${{ inputs.network }}"
+    - "-m ${{ inputs.machine_type }}"
+    - "-u ${{ inputs.subnetwork }}"
+    - "-t ${{ inputs.tags }}"
+    - "-p ${{ inputs.project }}"
+    - "-s ${{ inputs.scopes }}"
+    - "-l ${{ inputs.scopes }}"
+    - "-f ${{ inputs.from_image }}"
+    - "-g ${{ inputs.from_image_project }}"
+    - "-e ${{ inputs.script }}"
+    - "-v ${{ inputs.variables }}"
+    - "-o ${{ inputs.os_family }}"
