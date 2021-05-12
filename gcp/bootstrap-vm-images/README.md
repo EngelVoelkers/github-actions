@@ -1,5 +1,5 @@
 # bootstrap-vm-images
-This action will create a VM image. It will download an execute the given script
+This action will create a VM image. It will download and execute the given script
 within the bootstrapper VM.
 
 
@@ -82,7 +82,7 @@ within the bootstrapper VM.
 
 ## Example Usage
 ```
-uses: EngelVoelkers/github-actions/gcp/bootstrap-vm--images@master
+uses: EngelVoelkers/github-actions/gcp/bootstrap-vm-images@master
 with:
     image_name: 'My-fancy-image'
     zone: 'europe-west1-b'
