@@ -1,0 +1,27 @@
+name: 'Deprecate VM Images'
+description: 'Deprecate and replace all VM Images of a OS Family with a new one.'
+inputs:
+  replacement:
+    description: 'The Name of the replacement Image that is now the default for os family.'
+    required: true
+  os_family:
+    description: 'The Name of the os_family.'
+    required: true
+  project:
+    description: 'The gcp project id.'
+    required: true
+  delete_in:
+    description: 'The amount of days when the deprecated images gets finally deleted.'
+    required: false
+    default: '10d'
+outputs:
+  deleted_images:
+    description: 'The Number of deleted VM Images. Could be zero or more.'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.replacement }}
+    - ${{ inputs.os_family }}
+    - ${{ inputs.project }}
+    - ${{ inputs.delete_in }}
