@@ -8,7 +8,7 @@ logging() {
 }
 
 
-TIMESTAMP="$(date +%s-%N)"
+TIMESTAMP="$(date +%s)-${RANDOM}"
 SCOPES=${SCOPES:-""}
 ZONE=${ZONE:-""}
 MACHINE_TYPE=${MACHINE_TYPE:-""}
@@ -208,10 +208,6 @@ declare -a CMD_DELETE_INSTANCE=( \
         --project "${PROJECT}" \
         --delete-disks all \
 )
-
-
-date --version
-date --help
 
 
 SSH_KEY_VALIDITY="10m"
