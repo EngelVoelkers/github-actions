@@ -210,6 +210,10 @@ declare -a CMD_DELETE_INSTANCE=( \
 )
 
 
+date --version
+date --help
+
+
 SSH_KEY_VALIDITY=$( \
     TZ='Etc/UTC' \
     date --date='today 10 minutes' '+%Y-%d-%mT%H:%M:%S%Z' \
