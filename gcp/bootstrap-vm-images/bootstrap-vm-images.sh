@@ -174,7 +174,7 @@ declare -a CMD_DOWNLOAD_SCRIPT=( \
 declare -a CMD_ADD_FIREWALL_RULE=( \
     gcloud compute firewall-rules create "${IMAGE_NAME}" \
         --project "${PROJECT}" \
-        --target-tags="${IMAGE_NAME}" \
+        --target-tags "${IMAGE_NAME}" \
         --direction INGRESS \
         --allow=tcp:22 \
         --network "${NETWORK}" \
