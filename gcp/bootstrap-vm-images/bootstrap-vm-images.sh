@@ -214,16 +214,12 @@ date --version
 date --help
 
 
-SSH_KEY_VALIDITY=$( \
-    TZ='Etc/UTC' \
-    date --date='today 10 minutes' '+%Y-%d-%mT%H:%M:%S%Z' \
-)
-
+SSH_KEY_VALIDITY="10m"
 
 declare -a CMD_COPY_SCRIPT=( \
     gcloud compute scp --zone "${ZONE}" \
         --project "${PROJECT}" \
-        --ssh-key-expiration "${SSH_KEY_VALIDITY}" \
+        --ssh-key-expire-after="${SSH_KEY_VALIDITY}" \
         "${SUBST_SCRIPT}" \
         bootstrapper@"${IMAGE_NAME}":bootstrap.sh \
 )
@@ -233,7 +229,7 @@ declare  -a CMD_CHMOD_CMD=( \
     gcloud compute ssh bootstrapper@"${IMAGE_NAME}" \
         --zone "${ZONE}" \
         --project "${PROJECT}" \
-        --ssh-key-expiration "${SSH_KEY_VALIDITY}" \
+        --ssh-key-expire-after="${SSH_KEY_VALIDITY}" \
         --command "\"chmod 0750 ./bootstrap.sh\"" \
 )
 
@@ -242,7 +238,7 @@ declare -a CMD_SUDO_CMD=( \
     gcloud compute ssh bootstrapper@"${IMAGE_NAME}" \
         --zone "${ZONE}" \
         --project "${PROJECT}" \
-        --ssh-key-expiration "${SSH_KEY_VALIDITY}" \
+        --ssh-key-expire-after="${SSH_KEY_VALIDITY}" \
         --command "\"export ${SCRIPT_ENVS[*]}; sudo -E ./bootstrap.sh\"" \
 )
 
@@ -251,7 +247,7 @@ declare -a CMD_RM_CMD=( \
     gcloud compute ssh bootstrapper@"${IMAGE_NAME}" \
         --zone "${ZONE}" \
         --project "${PROJECT}" \
-        --ssh-key-expiration "${SSH_KEY_VALIDITY}" \
+        --ssh-key-expire-after="${SSH_KEY_VALIDITY}" \
         --command "\"rm -f -- ./bootstrap.sh\"" \
 )
 
