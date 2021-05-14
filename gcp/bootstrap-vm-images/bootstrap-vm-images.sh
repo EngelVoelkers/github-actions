@@ -279,6 +279,9 @@ if [ ${DRY_RUN} -eq 1 ]; then
 fi
 
 
+gcloud auth activate-service-account --key-file "${GOOGLE_APPLICATION_CREDENTIALS}"
+
+
 for key in ${!COMMANDS[*]}; do
     bash -c "${COMMANDS[$key]}"
     echo
