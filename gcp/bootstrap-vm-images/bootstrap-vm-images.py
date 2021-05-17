@@ -34,6 +34,20 @@ def prepare_gcloud_auth_cmd(args):
 
     return cmd
 
+
+def prepare_get_instance_cmd(agrs):
+    cmd = [
+        'glcoud',
+        'compute',
+        'instances',
+        'describe',
+        f'{args.image_name}',
+        f'--project={args.project}'
+    ]
+
+    return cmd
+
+
 def prepare_create_instance_cmd(args):
     cmd = [
         'gcloud',
@@ -79,7 +93,7 @@ def prepare_delete_instance_cmd(args):
     return cmd
 
 
-def prepare_scp_copy_cmd(args, src):
+def prepare_scp_copy_cmd(args):
     cmd = [
         'gcloud',
         'compute',
@@ -87,7 +101,7 @@ def prepare_scp_copy_cmd(args, src):
         f'--zone={args.zone}',
         f'--project={args.project}',
         f'--ssh-key-expire-after={args.ssh_key_expire}',
-        f'{src}',
+        f'{args.destination}',
         f'bootstrapper@{args.image_name}:bootstrap.sh'
     ]
 
@@ -145,28 +159,64 @@ def prepare_rm_cmd(args):
     return cmd
 
 
+def get_or_create_instance(args):
+    try:
+        cmd = prepare_get_instance_cmd(args)
+        print(f'Running: {" ".join(cmd)}')
+        if args.dry_run is False:
+            subprocess.check_call(cmd)
+    except subprocess.CalledProcessError:
+        cmd = prepare_create_instance_cmd(args)
+        print(f'Running: {" ".join(cmd)}')
+        if args.dry_run is False:
+            print(subprocess.check_output(cmd).decode('utf8'))
+    else:
+        print(f'Instance with name "{args.image_name}" already exists.')
+
+
+def get_and_delete_instance(args):
+    try:
+        cmd = prepare_get_instance_cmd(args)
+        print(f'Running: {" ".join(cmd)}')
+        if args.dry_run is False:
+            subprocess.check_call(cmd)
+    except subprocess.CalledProcessError:
+        print(f'Instance with name "{args.image_name}" already deleted.')
+    else:
+        cmd = prepare_delete_instance_cmd(args)
+        print(f'Running: {" ".join(cmd)}')
+        if args.dry_run is False:
+            print(subprocess.check_output(cmd).decode('utf8'))
+
+
 def compose(args):
     fd, destination = tempfile.mkstemp()
     args.destination = destination
     try:
-        ALL_PREPARED_CMDS = [
-            prepare_gcloud_auth_cmd(args),
-            prepare_create_instance_cmd(args),
-            prepare_scp_copy_cmd(args, destination),
+        PREPARED_CMDS = [
+            prepare_scp_copy_cmd(args),
             prepare_chmod_cmd(args),
             prepare_sudo_cmd(args),
             prepare_rm_cmd(args),
-            prepare_delete_instance_cmd(args)
         ]
 
         print(f'Download {args.script} to {args.destination}')
         if args.dry_run is False:
             download_script(args)
 
-        for cmd in ALL_PREPARED_CMDS:
-            print(' '.join(cmd))
+        cmd = prepare_gcloud_auth_cmd(args)
+        print(f'Running: {" ".join(cmd)}')
+        if args.dry_run is False:
+            print(subprocess.check_output(cmd).decode('utf8'))
+
+        get_or_create_instance(args)
+
+        for cmd in PREPARED_CMDS:
+            print(f'Running: {" ".join(cmd)}')
             if args.dry_run is False:
                 print(subprocess.check_output(cmd).decode('utf8'))
+
+        get_and_delete_instance(args)
     except subprocess.CalledProcessError as error:
         print(error)
         sys.exit(1)
@@ -312,8 +362,6 @@ def getopts():
     args = parser.parse_args()
 
     args.image_name = args.image_name.lower()
-
-    print(f'This is the namespace: {args}')
 
     return args
 
