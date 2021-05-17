@@ -29,7 +29,7 @@ def prepare_gcloud_auth_cmd(args):
         'gcloud',
         'auth',
         'activate-service-account',
-        f'--key-file {credentials}'
+        f'--key-file={credentials}'
     ]
 
     return cmd
@@ -41,24 +41,24 @@ def prepare_create_instance_cmd(args):
         'instance',
         'create',
         f'{args.image_name}',
-        f'--boot-disk-device-name {args.image_name}',
-        f'--image-family {args.from_image}',
-        f'--image-project {args.from_image_project}',
-        f'--project {args.project}',
-        f'--zone {args.zone}',
-        f'--machine-type {args.machine_type}',
-        f'--network {args.network}',
-        f'--subnet {args.sub_network}'
+        f'--boot-disk-device-name={args.image_name}',
+        f'--image-family={args.from_image}',
+        f'--image-project={args.from_image_project}',
+        f'--project={args.project}',
+        f'--zone={args.zone}',
+        f'--machine-type={args.machine_type}',
+        f'--network={args.network}',
+        f'--subnet={args.sub_network}'
     ]
 
     if args.tags:
-        cmd.append(f'--tags {args.tags}')
+        cmd.append(f'--tags={args.tags}')
 
     if args.scopes:
-        cmd.append(f'--scopes {args.scopes}')
+        cmd.append(f'--scopes={args.scopes}')
 
     if args.labels:
-        cmd.append(f'--labels {args.labels}')
+        cmd.append(f'--labels={args.labels}')
 
     return cmd
 
@@ -71,9 +71,9 @@ def prepare_delete_instance_cmd(args):
         'instances',
         'delete',
         f'{args.image_name}',
-        f'--zone {args.zone}',
-        f'--project {args.project}',
-        '--delete-disks all'
+        f'--zone={args.zone}',
+        f'--project={args.project}',
+        '--delete-disks=all'
     ]
 
     return cmd
@@ -84,8 +84,8 @@ def prepare_scp_copy_cmd(args, src):
         'gcloud',
         'compute',
         'scp',
-        f'--zone {args.zone}',
-        f'--project {args.project}',
+        f'--zone={args.zone}',
+        f'--project={args.project}',
         f'--ssh-key-expire-after={args.ssh_key_expire}',
         f'{src}',
         f'bootstrapper@{args.image_name}:bootstrap.sh'
@@ -100,10 +100,10 @@ def prepare_chmod_cmd(args):
         'compute',
         'ssh',
         f'bootstrapper@{args.image_name}',
-        f'--zone {args.zone}',
-        f'--project {args.project}',
+        f'--zone={args.zone}',
+        f'--project={args.project}',
         f'--ssh-key-expire-after={args.ssh_key_expire}',
-        f'--command "chmod 0750 ./bootstrap.sh"'
+        f'--command="chmod 0750 ./bootstrap.sh"'
     ]
 
     return cmd
@@ -115,8 +115,8 @@ def prepare_sudo_cmd(args):
         'compute',
         'ssh',
         f'bootstrappe@{args.image_name}',
-        f'--zone {args.zone}',
-        f'--project {args.project}',
+        f'--zone={args.zone}',
+        f'--project={args.project}',
         f'--ssh-key-expire-after={args.ssh_key_expire}',
     ]
 
@@ -125,7 +125,7 @@ def prepare_sudo_cmd(args):
     else:
         variables = ''
 
-    cmd.append(f'--command "{variables}sudo -E ./bootstrap.sh"')
+    cmd.append(f'--command="{variables}sudo -E ./bootstrap.sh"')
 
     return cmd
 
@@ -136,10 +136,10 @@ def prepare_rm_cmd(args):
         'compute',
         'ssh',
         f'bootstrappe@{args.image_name}',
-        f'--zone {args.zone}',
-        f'--project {args.project}',
+        f'--zone={args.zone}',
+        f'--project={args.project}',
         f'--ssh-key-expire-after={args.ssh_key_expire}',
-        f'--command "rm -f -- ./bootstrap.sh"'
+        f'--command="rm -f -- ./bootstrap.sh"'
     ]
 
     return cmd
