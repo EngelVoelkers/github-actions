@@ -140,15 +140,15 @@ fi
 
 
 declare -a CMD_CREATE_INSTANCE=( \
-    gcloud compute instances create "${IMAGE_NAME}" \
-        --boot-disk-device-name "${IMAGE_NAME}" \
-        --image-family "${FROM_IMAGE}" \
-        --image-project "${FROM_IMAGE_PROJECT}" \
-        --project "${PROJECT}" \
-        --zone "${ZONE}" \
-        --machine-type "${MACHINE_TYPE}"  \
-        --network "${NETWORK}" \
-        --subnet "${SUBNETWORK}" \
+    gcloud compute instances create\ "${IMAGE_NAME}" \
+        --boot-disk-device-name\ "${IMAGE_NAME}" \
+        --image-family\ "${FROM_IMAGE}" \
+        --image-project\ "${FROM_IMAGE_PROJECT}" \
+        --project\ "${PROJECT}" \
+        --zone\ "${ZONE}" \
+        --machine-type\ "${MACHINE_TYPE}"  \
+        --network\ "${NETWORK}" \
+        --subnet\ "${SUBNETWORK}" \
 )
 
 
@@ -161,7 +161,7 @@ declare -A OPTIONAL_ARGS=( \
 
 for key in ${!OPTIONAL_ARGS[*]}; do
     if [ ! "x${OPTIONAL_ARGS[$key]}" = "x" ]; then
-        CMD_CREATE_INSTANCE+=( "${key} \"${OPTIONAL_ARGS[$key]}\"" )
+        CMD_CREATE_INSTANCE+=( "${key}\"${OPTIONAL_ARGS[$key]}\"" )
     fi
 done
 
