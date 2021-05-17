@@ -26,7 +26,8 @@ def prepare_gcloud_auth_cmd(args):
         raise EnvironmentError('Can not find GOOGLE_APPLICATION_CREDENTIALS')
 
     cmd = [
-        f'gcloud auth activate-service-account',
+        'gcloud',
+        'auth activate-service-account',
         f'--key-file {credentials}'
     ]
 
@@ -34,7 +35,11 @@ def prepare_gcloud_auth_cmd(args):
 
 def prepare_create_instance_cmd(args):
     cmd = [
-        f'gcloud compute instance create {args.image_name}',
+        'gcloud',
+        'compute',
+        'instance',
+        'create',
+        f'{args.image_name}',
         f'--boot-disk-device-name {args.image_name}',
         f'--image-family {args.from_image}',
         f'--image-project {args.from_image_project}',
@@ -59,7 +64,12 @@ def prepare_create_instance_cmd(args):
 
 def prepare_delete_instance_cmd(args):
     cmd = [
-        f'gcloud -q compute instances delete {args.image_name}',
+        'gcloud',
+        '-q',
+        'compute',
+        'instances',
+        'delete',
+        f'{args.image_name}',
         f'--zone {args.zone}',
         f'--project {args.project}',
         '--delete-disks all'
@@ -70,7 +80,9 @@ def prepare_delete_instance_cmd(args):
 
 def prepare_scp_copy_cmd(args, src):
     cmd = [
-        f'gcloud compute scp',
+        'gcloud',
+        'compute',
+        'scp',
         f'--zone {args.zone}',
         f'--project {args.project}',
         f'--ssh-key-expire-after={args.ssh_key_expire}',
@@ -83,7 +95,10 @@ def prepare_scp_copy_cmd(args, src):
 
 def prepare_chmod_cmd(args):
     cmd = [
-        f'gcloud compute ssh bootstrapper@{args.image_name}',
+        'gcloud',
+        'compute',
+        'ssh',
+        f'bootstrapper@{args.image_name}',
         f'--zone {args.zone}',
         f'--project {args.project}',
         f'--ssh-key-expire-after={args.ssh_key_expire}',
@@ -95,7 +110,10 @@ def prepare_chmod_cmd(args):
 
 def prepare_sudo_cmd(args):
     cmd = [
-        f'gcloud compute ssh bootstrappe@{args.image_name}',
+        'gcloud',
+        'compute',
+        'ssh',
+        f'bootstrappe@{args.image_name}',
         f'--zone {args.zone}',
         f'--project {args.project}',
         f'--ssh-key-expire-after={args.ssh_key_expire}',
@@ -113,7 +131,10 @@ def prepare_sudo_cmd(args):
 
 def prepare_rm_cmd(args):
     cmd = [
-        f'gcloud compute ssh bootstrappe@{args.image_name}',
+        'gcloud',
+        'compute',
+        'ssh',
+        f'bootstrappe@{args.image_name}',
         f'--zone {args.zone}',
         f'--project {args.project}',
         f'--ssh-key-expire-after={args.ssh_key_expire}',
