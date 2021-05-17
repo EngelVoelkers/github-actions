@@ -37,7 +37,7 @@ def prepare_gcloud_auth_cmd(args):
 
 def prepare_get_instance_cmd(agrs):
     cmd = [
-        'glcoud',
+        'gcloud',
         'compute',
         'instances',
         'describe',
