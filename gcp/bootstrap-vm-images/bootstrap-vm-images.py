@@ -144,7 +144,7 @@ def compose(args):
         for cmd in ALL_PREPARED_CMDS:
             print(' '.join(cmd))
             if args.dry_run is False:
-                print(subprocess.check_output(' '.join(cmd)))
+                print(subprocess.check_output(cmd))
     except subprocess.CalledProcessError as error:
         print(error)
         sys.exit(1)
