@@ -42,7 +42,8 @@ def prepare_get_instance_cmd(agrs):
         'instances',
         'describe',
         f'{args.image_name}',
-        f'--project={args.project}'
+        f'--project={args.project}',
+        f'--zone={args.zone}'
     ]
 
     return cmd
