@@ -11,12 +11,17 @@ import sys
 import requests
 import tempfile
 import subprocess
+from base64 import b64encode
 from argparse import ArgumentParser
 
 
 def download_script(args):
     request = requests.get(args.script)
+    print(f'This: {b64encode(args.script)}')
     with open(args.destination, 'w') as fh:
+        print(
+            f'Writing "{request.content.decode("ut8")}" to "{args.destination}"'
+        )
         fh.write(request.content.decode('utf8'))
 
 
@@ -97,6 +102,7 @@ def prepare_delete_instance_cmd(args):
 def prepare_scp_copy_cmd(args):
     cmd = [
         'gcloud',
+        '-q',
         'compute',
         'scp',
         f'--zone={args.zone}',
@@ -112,6 +118,7 @@ def prepare_scp_copy_cmd(args):
 def prepare_chmod_cmd(args):
     cmd = [
         'gcloud',
+        '-q',
         'compute',
         'ssh',
         f'bootstrapper@{args.image_name}',
@@ -127,6 +134,7 @@ def prepare_chmod_cmd(args):
 def prepare_sudo_cmd(args):
     cmd = [
         'gcloud',
+        '-q',
         'compute',
         'ssh',
         f'bootstrappe@{args.image_name}',
@@ -148,6 +156,7 @@ def prepare_sudo_cmd(args):
 def prepare_rm_cmd(args):
     cmd = [
         'gcloud',
+        '-q',
         'compute',
         'ssh',
         f'bootstrappe@{args.image_name}',
