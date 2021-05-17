@@ -1,7 +1,7 @@
 FROM google/cloud-sdk:alpine
 
-COPY bootstrap-vm-images.sh /entrypoint.sh
+COPY bootstrap-vm-images.py /entrypoint.py
 
-RUN chmod 0555 /entrypoint.sh
+RUN chmod 0555 /entrypoint.py
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.py"]
