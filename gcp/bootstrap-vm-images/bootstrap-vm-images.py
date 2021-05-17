@@ -313,6 +313,8 @@ def getopts():
 
     args.image_name = args.image_name.lower()
 
+    print(f'This is the namespace: {args}')
+
     return args
 
 
