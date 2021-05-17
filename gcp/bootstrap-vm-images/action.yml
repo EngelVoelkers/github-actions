@@ -58,7 +58,7 @@ runs:
     - "--tags=${{inputs.tags}}"
     - "--project=${{inputs.project}}"
     - "--scopes=${{inputs.scopes}}"
-    - "--labels=${{inputs.scopes}}"
+    - "--labels=${{inputs.labels}}"
     - "--from-image=${{inputs.from_image}}"
     - "--from-image-project=${{inputs.from_image_project}}"
     - "--script=${{inputs.script}}"
