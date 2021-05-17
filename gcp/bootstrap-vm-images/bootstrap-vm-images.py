@@ -121,7 +121,7 @@ def prepare_chmod_cmd(args):
         f'--zone={args.zone}',
         f'--project={args.project}',
         f'--ssh-key-expire-after={args.ssh_key_expire}',
-        f'--command="chmod 0750 ./bootstrap.sh"'
+        f'--command="\"chmod 0750 ./bootstrap.sh\""'
     ]
 
     return cmd
@@ -144,7 +144,7 @@ def prepare_sudo_cmd(args):
     else:
         variables = ''
 
-    cmd.append(f'--command="{variables}sudo -E ./bootstrap.sh"')
+    cmd.append(f'--command="\"{variables}sudo -E ./bootstrap.sh\""')
 
     return cmd
 
