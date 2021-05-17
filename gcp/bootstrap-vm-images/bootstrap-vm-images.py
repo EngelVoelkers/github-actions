@@ -20,7 +20,7 @@ def download_script(args):
     print(f'This: {b64encode(args.script.encode("utf8"))}')
     with open(args.destination, 'w') as fh:
         print(
-            f'Writing "{request.content.decode("ut8")}" to "{args.destination}"'
+            f'Writing "{request.content.decode("utf8")}" to "{args.destination}"'
         )
         fh.write(request.content.decode('utf8'))
 
