@@ -132,7 +132,7 @@ done
 IMAGE_NAME=$(tr "[:upper:]" "[:lower:]" <<< "${IMAGE_NAME}-${TIMESTAMP}")
 
 
-declare -a CMD_CREATE_INSTANCE=( \
+declare -a CMD_CREATE_INSTANCE=(\
     "gcloud compute instances create ${IMAGE_NAME}" \
         "--boot-disk-device-name ${IMAGE_NAME}" \
         "--image-family ${FROM_IMAGE}" \
@@ -141,14 +141,14 @@ declare -a CMD_CREATE_INSTANCE=( \
         "--zone ${ZONE}" \
         "--machine-type ${MACHINE_TYPE}"  \
         "--network ${NETWORK}" \
-        "--subnet ${SUBNETWORK}" \
+        "--subnet ${SUBNETWORK}"\
 )
 
 
-declare -A OPTIONAL_ARGS=( \
+declare -A OPTIONAL_ARGS=(\
     [--tags]="${TAGS}" \
     [--scopes]="${SCOPES}" \
-    [--labels]="${LABELS}" \
+    [--labels]="${LABELS}"\
 )
 
 
@@ -257,7 +257,7 @@ declare -a COMMANDS=( \
 
 
 echo "Commands to execute:"
-echo "==================="
+echo "===================="
 
 
 for key in ${!COMMANDS[*]}; do
