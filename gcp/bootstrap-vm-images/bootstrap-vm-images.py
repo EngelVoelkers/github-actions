@@ -170,12 +170,12 @@ def get_or_create_instance(args):
         cmd = prepare_get_instance_cmd(args)
         print(f'Running: {" ".join(cmd)}')
         if args.dry_run is False:
-            subprocess.check_call(cmd)
+            subprocess.check_call(cmd, stdout=None, stderr=None)
     except subprocess.CalledProcessError:
         cmd = prepare_create_instance_cmd(args)
         print(f'Running: {" ".join(cmd)}')
         if args.dry_run is False:
-            print(subprocess.check_output(cmd).decode('utf8'))
+            subprocess.check_output(cmd).decode('utf8')
     else:
         print(f'Instance with name "{args.image_name}" already exists.')
 
@@ -185,14 +185,14 @@ def get_and_delete_instance(args):
         cmd = prepare_get_instance_cmd(args)
         print(f'Running: {" ".join(cmd)}')
         if args.dry_run is False:
-            subprocess.check_call(cmd)
+            subprocess.check_call(cmd, stdout=None, stderr=None)
     except subprocess.CalledProcessError:
         print(f'Instance with name "{args.image_name}" already deleted.')
     else:
         cmd = prepare_delete_instance_cmd(args)
         print(f'Running: {" ".join(cmd)}')
         if args.dry_run is False:
-            print(subprocess.check_output(cmd).decode('utf8'))
+            subprocess.check_output(cmd).decode('utf8')
 
 
 def compose(args):
@@ -213,14 +213,14 @@ def compose(args):
         cmd = prepare_gcloud_auth_cmd(args)
         print(f'Running: {" ".join(cmd)}')
         if args.dry_run is False:
-            print(subprocess.check_output(cmd).decode('utf8'))
+            subprocess.check_output(cmd).decode('utf8')
 
         get_or_create_instance(args)
 
         for cmd in PREPARED_CMDS:
             print(f'Running: {" ".join(cmd)}')
             if args.dry_run is False:
-                print(subprocess.check_output(cmd).decode('utf8'))
+                subprocess.check_output(cmd).decode('utf8')
 
         get_and_delete_instance(args)
     except subprocess.CalledProcessError as error:
