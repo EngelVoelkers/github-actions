@@ -122,6 +122,7 @@ def prepare_rm_cmd(args):
 
 def compose(args):
     fd, destination = tempfile.mkstemp()
+    args.destination = destination
     try:
         ALL_PREPARED_CMDS = [
             prepare_gcloud_auth_cmd(args),
@@ -133,7 +134,7 @@ def compose(args):
             prepare_delete_instance_cmd(args)
         ]
 
-        print(f'Download {args.script} to {destination}')
+        print(f'Download {args.script} to {args.destination}')
         if args.dry_run is False:
             download_script(args)
 
