@@ -132,23 +132,16 @@ done
 IMAGE_NAME=$(tr "[:upper:]" "[:lower:]" <<< "${IMAGE_NAME}-${TIMESTAMP}")
 
 
-if [ "x${TAGS}" = "x" ]; then
-    TAGS="${IMAGE_NAME}"
-else
-    TAGS="${TAGS},${IMAGE_NAME}"
-fi
-
-
 declare -a CMD_CREATE_INSTANCE=( \
-    gcloud compute instances create\ "${IMAGE_NAME}" \
-        --boot-disk-device-name\ "${IMAGE_NAME}" \
-        --image-family\ "${FROM_IMAGE}" \
-        --image-project\ "${FROM_IMAGE_PROJECT}" \
-        --project\ "${PROJECT}" \
-        --zone\ "${ZONE}" \
-        --machine-type\ "${MACHINE_TYPE}"  \
-        --network\ "${NETWORK}" \
-        --subnet\ "${SUBNETWORK}" \
+    "gcloud compute instances create ${IMAGE_NAME}" \
+        "--boot-disk-device-name ${IMAGE_NAME}" \
+        "--image-family ${FROM_IMAGE}" \
+        "--image-project ${FROM_IMAGE_PROJECT}" \
+        "--project ${PROJECT}" \
+        "--zone ${ZONE}" \
+        "--machine-type ${MACHINE_TYPE}"  \
+        "--network ${NETWORK}" \
+        "--subnet ${SUBNETWORK}" \
 )
 
 
@@ -161,7 +154,7 @@ declare -A OPTIONAL_ARGS=( \
 
 for key in ${!OPTIONAL_ARGS[*]}; do
     if [ ! "x${OPTIONAL_ARGS[$key]}" = "x" ]; then
-        CMD_CREATE_INSTANCE+=( "${key}\"${OPTIONAL_ARGS[$key]}\"" )
+        CMD_CREATE_INSTANCE+=("${key}=\"${OPTIONAL_ARGS[$key]}\"")
     fi
 done
 
