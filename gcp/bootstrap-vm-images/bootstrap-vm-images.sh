@@ -171,20 +171,20 @@ declare -a CMD_DOWNLOAD_SCRIPT=( \
 )
 
 
-declare -a CMD_ADD_FIREWALL_RULE=( \
-    gcloud compute firewall-rules create "${IMAGE_NAME}" \
-        --project "${PROJECT}" \
-        --target-tags "${IMAGE_NAME}" \
-        --direction INGRESS \
-        --allow=tcp:22 \
-        --network "${NETWORK}" \
-)
+#declare -a CMD_ADD_FIREWALL_RULE=( \
+#    gcloud compute firewall-rules create "${IMAGE_NAME}" \
+#        --project "${PROJECT}" \
+#        --target-tags "${IMAGE_NAME}" \
+#        --direction INGRESS \
+#        --allow=tcp:22 \
+#        --network "${NETWORK}" \
+#)
 
 
-declare -a CMD_DELETE_FIREWALL_RULE=( \
-    gcloud -q compute firewall-rules delete "${IMAGE_NAME}" \
-        --project "${PROJECT}" \
-)
+#declare -a CMD_DELETE_FIREWALL_RULE=( \
+#    gcloud -q compute firewall-rules delete "${IMAGE_NAME}" \
+#        --project "${PROJECT}" \
+#)
 
 
 declare -a CMD_STOP_INSTANCE=( \
@@ -249,7 +249,7 @@ declare -a CMD_RM_CMD=( \
 
 
 declare -a COMMANDS=( \
-    "${CMD_DOWNLOAD_SCRIPT[*]}" \
+    #"${CMD_DOWNLOAD_SCRIPT[*]}" \
     "${CMD_ADD_FIREWALL_RULE[*]}" \
     "${CMD_CREATE_INSTANCE[*]}" \
     "${CMD_COPY_SCRIPT[*]}" \
@@ -259,7 +259,7 @@ declare -a COMMANDS=( \
     "${CMD_CREATE_IMAGE[*]}" \
     "${CMD_STOP_INSTANCE[*]}" \
     "${CMD_DELETE_INSTANCE[*]}" \
-    "${CMD_DELETE_FIREWALL_RULE[*]}" \
+    #"${CMD_DELETE_FIREWALL_RULE[*]}" \
 )
 
 
