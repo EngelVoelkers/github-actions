@@ -27,7 +27,8 @@ def prepare_gcloud_auth_cmd(args):
 
     cmd = [
         'gcloud',
-        'auth activate-service-account',
+        'auth',
+        'activate-service-account',
         f'--key-file {credentials}'
     ]
 
