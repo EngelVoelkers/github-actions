@@ -11,17 +11,16 @@ import sys
 import requests
 import tempfile
 import subprocess
-from base64 import b64encode
 from argparse import ArgumentParser
 
 
-def download_script(args):
-    request = requests.get(args.script)
-    with open(args.destination, 'w') as fh:
+def download_script(arguments):
+    request = requests.get(arguments.script)
+    with open(arguments.destination, 'w') as fh:
         fh.write(request.content.decode('utf8'))
 
 
-def prepare_gcloud_auth_cmd(args):
+def prepare_gcloud_auth_cmd(arguments):
     credentials = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', None)
     if credentials is None:
         raise EnvironmentError('Can not find GOOGLE_APPLICATION_CREDENTIALS')
@@ -36,7 +35,7 @@ def prepare_gcloud_auth_cmd(args):
     return cmd
 
 
-def prepare_get_instance_cmd(agrs):
+def prepare_get_instance_cmd(arguments):
     cmd = [
         'gcloud',
         'compute',
@@ -50,97 +49,97 @@ def prepare_get_instance_cmd(agrs):
     return cmd
 
 
-def prepare_create_instance_cmd(args):
+def prepare_create_instance_cmd(arguments):
     cmd = [
         'gcloud',
         'compute',
         'instances',
         'create',
-        f'{args.image_name}',
-        f'--boot-disk-device-name={args.image_name}',
-        f'--image-family={args.from_image}',
-        f'--image-project={args.from_image_project}',
-        f'--project={args.project}',
-        f'--zone={args.zone}',
-        f'--machine-type={args.machine_type}',
-        f'--network={args.network}',
-        f'--subnet={args.sub_network}'
+        f'{arguments.image_name}',
+        f'--boot-disk-device-name={arguments.image_name}',
+        f'--image-family={arguments.from_image}',
+        f'--image-project={arguments.from_image_project}',
+        f'--project={arguments.project}',
+        f'--zone={arguments.zone}',
+        f'--machine-type={arguments.machine_type}',
+        f'--network={arguments.network}',
+        f'--subnet={arguments.sub_network}'
     ]
 
-    if args.tags:
-        cmd.append(f'--tags={args.tags}')
+    if arguments.tags:
+        cmd.append(f'--tags={arguments.tags}')
 
-    if args.scopes:
-        cmd.append(f'--scopes={args.scopes}')
+    if arguments.scopes:
+        cmd.append(f'--scopes={arguments.scopes}')
 
-    if args.labels:
-        cmd.append(f'--labels={args.labels}')
+    if arguments.labels:
+        cmd.append(f'--labels={arguments.labels}')
 
     return cmd
 
 
-def prepare_delete_instance_cmd(args):
+def prepare_delete_instance_cmd(arguments):
     cmd = [
         'gcloud',
         '-q',
         'compute',
         'instances',
         'delete',
-        f'{args.image_name}',
-        f'--zone={args.zone}',
-        f'--project={args.project}',
+        f'{arguments.image_name}',
+        f'--zone={arguments.zone}',
+        f'--project={arguments.project}',
         '--delete-disks=all'
     ]
 
     return cmd
 
 
-def prepare_scp_copy_cmd(args):
+def prepare_scp_copy_cmd(arguments):
     cmd = [
         'gcloud',
         '-q',
         'compute',
         'scp',
-        f'--zone={args.zone}',
-        f'--project={args.project}',
-        f'--ssh-key-expire-after={args.ssh_key_expire}',
-        f'{args.destination}',
-        f'bootstrapper@{args.image_name}:bootstrap.sh'
+        f'--zone={arguments.zone}',
+        f'--project={arguments.project}',
+        f'--ssh-key-expire-after={arguments.ssh_key_expire}',
+        f'{arguments.destination}',
+        f'bootstrapper@{arguments.image_name}:bootstrap.sh'
     ]
 
     return cmd
 
 
-def prepare_chmod_cmd(args):
+def prepare_chmod_cmd(arguments):
     cmd = [
         'gcloud',
         '-q',
         'compute',
         'ssh',
-        f'bootstrapper@{args.image_name}',
-        f'--zone={args.zone}',
-        f'--project={args.project}',
-        f'--ssh-key-expire-after={args.ssh_key_expire}',
+        f'bootstrapper@{arguments.image_name}',
+        f'--zone={arguments.zone}',
+        f'--project={arguments.project}',
+        f'--ssh-key-expire-after={arguments.ssh_key_expire}',
         f'--command="\"chmod 0750 ./bootstrap.sh\""'
     ]
 
     return cmd
 
 
-def prepare_sudo_cmd(args):
+def prepare_sudo_cmd(arguments):
     cmd = [
         'gcloud',
         '-q',
         'compute',
         'ssh',
-        f'bootstrapper@{args.image_name}',
-        f'--zone={args.zone}',
-        f'--project={args.project}',
-        f'--ssh-key-expire-after={args.ssh_key_expire}',
+        f'bootstrapper@{arguments.image_name}',
+        f'--zone={arguments.zone}',
+        f'--project={arguments.project}',
+        f'--ssh-key-expire-after={arguments.ssh_key_expire}',
     ]
 
-    if args.variables:
-        variables = f'export {args.variables}; '
+    if arguments.variables:
+        variables = f'export {arguments.variables}; '
     else:
         variables = ''
 
@@ -149,80 +148,97 @@ def prepare_sudo_cmd(args):
     return cmd
 
 
-def prepare_rm_cmd(args):
+def prepare_rm_cmd(arguments):
     cmd = [
         'gcloud',
         '-q',
         'compute',
         'ssh',
-        f'bootstrappe@{args.image_name}',
-        f'--zone={args.zone}',
-        f'--project={args.project}',
-        f'--ssh-key-expire-after={args.ssh_key_expire}',
+        f'bootstrappe@{arguments.image_name}',
+        f'--zone={arguments.zone}',
+        f'--project={arguments.project}',
+        f'--ssh-key-expire-after={arguments.ssh_key_expire}',
         f'--command="\"rm -f -- ./bootstrap.sh\""'
     ]
 
     return cmd
 
 
-def get_or_create_instance(args):
+def prepare_create_image_cmd(arguements):
+    cmd = [
+        'gcloud',
+        f'--project={arguements.project}'
+        'compute',
+        'images',
+        'create',
+        f'{arguements.image_name}',
+        f'--source-disk={arguements.image_name}',
+        f'--source-disk-zome={arguements.zone}',
+        f'--family={arguements.os_family}'
+    ]
+
+    return cmd
+
+
+def get_or_create_instance(arguments):
     try:
-        cmd = prepare_get_instance_cmd(args)
+        cmd = prepare_get_instance_cmd(arguments)
         print(f'Running: {" ".join(cmd)}')
-        if args.dry_run is False:
+        if arguments.dry_run is False:
             subprocess.check_call(cmd, stdout=None, stderr=None)
     except subprocess.CalledProcessError:
-        cmd = prepare_create_instance_cmd(args)
+        cmd = prepare_create_instance_cmd(arguments)
         print(f'Running: {" ".join(cmd)}')
-        if args.dry_run is False:
+        if arguments.dry_run is False:
             subprocess.check_output(cmd).decode('utf8')
     else:
-        print(f'Instance with name "{args.image_name}" already exists.')
+        print(f'Instance with name "{arguments.image_name}" already exists.')
 
 
-def get_and_delete_instance(args):
+def get_and_delete_instance(arguments):
     try:
-        cmd = prepare_get_instance_cmd(args)
+        cmd = prepare_get_instance_cmd(arguments)
         print(f'Running: {" ".join(cmd)}')
-        if args.dry_run is False:
+        if arguments.dry_run is False:
             subprocess.check_call(cmd, stdout=None, stderr=None)
     except subprocess.CalledProcessError:
-        print(f'Instance with name "{args.image_name}" already deleted.')
+        print(f'Instance with name "{arguments.image_name}" already deleted.')
     else:
-        cmd = prepare_delete_instance_cmd(args)
+        cmd = prepare_delete_instance_cmd(arguments)
         print(f'Running: {" ".join(cmd)}')
-        if args.dry_run is False:
+        if arguments.dry_run is False:
             subprocess.check_output(cmd).decode('utf8')
 
 
-def compose(args):
+def compose(arguments):
     fd, destination = tempfile.mkstemp()
-    args.destination = destination
+    arguments.destination = destination
     try:
         PREPARED_CMDS = [
-            prepare_scp_copy_cmd(args),
-            prepare_chmod_cmd(args),
-            prepare_sudo_cmd(args),
-            prepare_rm_cmd(args),
+            prepare_scp_copy_cmd(arguments),
+            prepare_chmod_cmd(arguments),
+            prepare_sudo_cmd(arguments),
+            prepare_rm_cmd(arguments),
+            prepare_create_image_cmd(arguments)
         ]
 
-        print(f'Download {args.script} to {args.destination}')
-        if args.dry_run is False:
-            download_script(args)
+        print(f'Download {arguments.script} to {arguments.destination}')
+        if arguments.dry_run is False:
+            download_script(arguments)
 
-        cmd = prepare_gcloud_auth_cmd(args)
+        cmd = prepare_gcloud_auth_cmd(arguments)
         print(f'Running: {" ".join(cmd)}')
-        if args.dry_run is False:
+        if arguments.dry_run is False:
             subprocess.check_output(cmd).decode('utf8')
 
-        get_or_create_instance(args)
+        get_or_create_instance(arguments)
 
         for cmd in PREPARED_CMDS:
             print(f'Running: {" ".join(cmd)}')
-            if args.dry_run is False:
+            if arguments.dry_run is False:
                 subprocess.check_output(cmd).decode('utf8')
 
-        get_and_delete_instance(args)
+        get_and_delete_instance(arguments)
     except subprocess.CalledProcessError as error:
         print(error)
         sys.exit(1)
