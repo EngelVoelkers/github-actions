@@ -38,7 +38,7 @@ def prepare_create_instance_cmd(args):
     cmd = [
         'gcloud',
         'compute',
-        'instance',
+        'instances',
         'create',
         f'{args.image_name}',
         f'--boot-disk-device-name={args.image_name}',
