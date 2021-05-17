@@ -17,11 +17,7 @@ from argparse import ArgumentParser
 
 def download_script(args):
     request = requests.get(args.script)
-    print(f'This: {b64encode(args.script.encode("utf8"))}')
     with open(args.destination, 'w') as fh:
-        print(
-            f'Writing "{request.content.decode("utf8")}" to "{args.destination}"'
-        )
         fh.write(request.content.decode('utf8'))
 
 
@@ -125,7 +121,7 @@ def prepare_chmod_cmd(args):
         f'--zone={args.zone}',
         f'--project={args.project}',
         f'--ssh-key-expire-after={args.ssh_key_expire}',
-        f'--command="chmod 0750 ./bootstrap.sh"'
+        f'--command="\"chmod 0750 ./bootstrap.sh\""'
     ]
 
     return cmd
@@ -148,7 +144,7 @@ def prepare_sudo_cmd(args):
     else:
         variables = ''
 
-    cmd.append(f'--command="{variables}sudo -E ./bootstrap.sh"')
+    cmd.append(f'--command="\"{variables}sudo -E ./bootstrap.sh\""')
 
     return cmd
 
@@ -163,7 +159,7 @@ def prepare_rm_cmd(args):
         f'--zone={args.zone}',
         f'--project={args.project}',
         f'--ssh-key-expire-after={args.ssh_key_expire}',
-        f'--command="rm -f -- ./bootstrap.sh"'
+        f'--command="\"rm -f -- ./bootstrap.sh\""'
     ]
 
     return cmd
