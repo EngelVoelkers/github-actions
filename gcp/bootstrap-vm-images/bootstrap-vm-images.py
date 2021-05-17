@@ -164,17 +164,17 @@ def prepare_rm_cmd(arguments):
     return cmd
 
 
-def prepare_create_image_cmd(arguements):
+def prepare_create_image_cmd(arguments):
     cmd = [
         'gcloud',
-        f'--project={arguements.project}'
         'compute',
         'images',
         'create',
-        f'{arguements.image_name}',
-        f'--source-disk={arguements.image_name}',
-        f'--source-disk-zome={arguements.zone}',
-        f'--family={arguements.os_family}'
+        f'{arguments.image_name}',
+        f'--source-disk={arguments.image_name}',
+        f'--source-disk-zome={arguments.zone}',
+        f'--family={arguments.os_family}',
+        f'--project={arguments.project}'
     ]
 
     return cmd
