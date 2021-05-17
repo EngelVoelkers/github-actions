@@ -21,10 +21,13 @@ def download_script(args):
 
 
 def prepare_gcloud_auth_cmd(args):
-    # gcloud auth activate-service-account --key-file "${GOOGLE_APPLICATION_CREDENTIALS}"
+    credentials = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', None)
+    if credentials is None:
+        raise EnvironmentError('Can not find GOOGLE_APPLICATION_CREDENTIALS')
+
     cmd = [
         f'gcloud auth activate-service-account',
-        f'--key-file ${{GOOGLE_APPILICATION_CREDENTIALS}}'
+        f'--key-file {credentials}'
     ]
 
     return cmd
