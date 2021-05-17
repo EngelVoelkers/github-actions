@@ -17,7 +17,7 @@ from argparse import ArgumentParser
 
 def download_script(args):
     request = requests.get(args.script)
-    print(f'This: {b64encode(args.script)}')
+    print(f'This: {b64encode(args.script.encode("utf8"))}')
     with open(args.destination, 'w') as fh:
         print(
             f'Writing "{request.content.decode("ut8")}" to "{args.destination}"'
