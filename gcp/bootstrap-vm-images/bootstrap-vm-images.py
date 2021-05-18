@@ -94,6 +94,20 @@ def prepare_delete_instance_cmd(arguments):
     return cmd
 
 
+def prepare_stop_instance_cmd(arguments):
+    cmd = [
+        'gcloud',
+        'compute',
+        'instances',
+        'stop',
+        f'{arguments.image_name}',
+        f'--project={arguments.project}',
+        f'--zone={arguments.zone}'
+    ]
+
+    return cmd
+
+
 def prepare_scp_copy_cmd(arguments):
     cmd = [
         'gcloud',
@@ -185,12 +199,12 @@ def get_or_create_instance(arguments):
         cmd = prepare_get_instance_cmd(arguments)
         print(f'Running: {" ".join(cmd)}')
         if arguments.dry_run is False:
-            subprocess.check_call(cmd, stdout=None, stderr=None)
+            exec_cmd(cmd, echo=False)
     except subprocess.CalledProcessError:
         cmd = prepare_create_instance_cmd(arguments)
         print(f'Running: {" ".join(cmd)}')
         if arguments.dry_run is False:
-            subprocess.check_output(cmd).decode('utf8')
+            exec_cmd(cmd, echo=False)
     else:
         print(f'Instance with name "{arguments.image_name}" already exists.')
 
@@ -200,14 +214,21 @@ def get_and_delete_instance(arguments):
         cmd = prepare_get_instance_cmd(arguments)
         print(f'Running: {" ".join(cmd)}')
         if arguments.dry_run is False:
-            subprocess.check_call(cmd, stdout=None, stderr=None)
+            exec_cmd(cmd, echo=False)
     except subprocess.CalledProcessError:
         print(f'Instance with name "{arguments.image_name}" already deleted.')
     else:
         cmd = prepare_delete_instance_cmd(arguments)
         print(f'Running: {" ".join(cmd)}')
         if arguments.dry_run is False:
-            subprocess.check_output(cmd).decode('utf8')
+            exec_cmd(cmd, echo=False)
+
+
+def exec_cmd(cmd, echo=False):
+    if echo is False:
+        subprocess.check_call(cmd, stdout=None, stderr=None)
+    else:
+        subprocess.check_call(cmd)
 
 
 def compose(arguments):
@@ -215,11 +236,12 @@ def compose(arguments):
     arguments.destination = destination
     try:
         PREPARED_CMDS = [
-            prepare_scp_copy_cmd(arguments),
-            prepare_chmod_cmd(arguments),
-            prepare_sudo_cmd(arguments),
-            prepare_rm_cmd(arguments),
-            prepare_create_image_cmd(arguments)
+            (prepare_scp_copy_cmd(arguments), False),
+            (prepare_chmod_cmd(arguments), False),
+            (prepare_sudo_cmd(arguments), True),
+            (prepare_rm_cmd(arguments), False),
+            (prepare_stop_instance_cmd(arguments), False),
+            (prepare_create_image_cmd(arguments), False)
         ]
 
         print(f'Download {arguments.script} to {arguments.destination}')
@@ -229,14 +251,14 @@ def compose(arguments):
         cmd = prepare_gcloud_auth_cmd(arguments)
         print(f'Running: {" ".join(cmd)}')
         if arguments.dry_run is False:
-            subprocess.check_output(cmd).decode('utf8')
+            exec_cmd(cmd, echo=False)
 
         get_or_create_instance(arguments)
 
-        for cmd in PREPARED_CMDS:
+        for cmd, echo in PREPARED_CMDS:
             print(f'Running: {" ".join(cmd)}')
             if arguments.dry_run is False:
-                subprocess.check_output(cmd).decode('utf8')
+                exec_cmd(cmd, echo=echo)
 
         get_and_delete_instance(arguments)
     except subprocess.CalledProcessError as error:
