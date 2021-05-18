@@ -172,7 +172,7 @@ def prepare_create_image_cmd(arguments):
         'create',
         f'{arguments.image_name}',
         f'--source-disk={arguments.image_name}',
-        f'--source-disk-zome={arguments.zone}',
+        f'--source-disk-zone={arguments.zone}',
         f'--family={arguments.os_family}',
         f'--project={arguments.project}'
     ]
