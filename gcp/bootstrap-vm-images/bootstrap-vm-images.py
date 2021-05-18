@@ -178,6 +178,19 @@ def prepare_rm_cmd(arguments):
     return cmd
 
 
+def prepare_get_image_cmd(arguments):
+    cmd = [
+        'gcloud',
+        'compute',
+        'images',
+        'describe',
+        f'{arguments.image_name}',
+        f'--project={arguments.project}'
+    ]
+
+    return cmd
+
+
 def prepare_create_image_cmd(arguments):
     cmd = [
         'gcloud',
@@ -194,17 +207,75 @@ def prepare_create_image_cmd(arguments):
     return cmd
 
 
+def prepare_delete_image_cmd(arguments):
+    cmd = [
+        'gcloud',
+        '-q',
+        'compute',
+        'images',
+        'delete',
+        f'{arguments.image_name}',
+        f'--project={arguments.project}'
+    ]
+
+    return cmd
+
+
+def image_exists(arguments):
+    cmd = prepare_get_image_cmd(arguments)
+    try:
+        exec_cmd(
+            cmd,
+            echo=False,
+            dry_run=arguments.dry_run
+        )
+    except subprocess.CalledProcessError:
+        return False
+    else:
+        return True
+
+
+def image_delete(arguments):
+    cmd = prepare_delete_image_cmd(arguments)
+    try:
+        exec_cmd(
+            cmd,
+            echo=False,
+            dry_run=arguments.dry_run
+        )
+    except subprocess.CalledProcessError:
+        return False
+    else:
+        return True
+
+
+def image_create(arguments):
+    cmd = prepare_create_image_cmd(arguments)
+    try:
+        exec_cmd(
+            cmd,
+            echo=False,
+            dry_run=arguments.dry_run
+        )
+    except subprocess.CalledProcessError:
+        return False
+    else:
+        return True
+
+
+def image_delete_if_exists(arguments):
+    if image_exists(arguments):
+        image_delete(arguments)
+    return True
+
+
 def get_or_create_instance(arguments):
     try:
         cmd = prepare_get_instance_cmd(arguments)
-        print(f'Running: {" ".join(cmd)}')
-        if arguments.dry_run is False:
-            exec_cmd(cmd, echo=False)
+        exec_cmd(cmd, echo=False, dry_run=arguments.dry_run)
     except subprocess.CalledProcessError:
         cmd = prepare_create_instance_cmd(arguments)
-        print(f'Running: {" ".join(cmd)}')
-        if arguments.dry_run is False:
-            exec_cmd(cmd, echo=False)
+        exec_cmd(cmd, echo=False, dry_run=arguments.dry_run)
     else:
         print(f'Instance with name "{arguments.image_name}" already exists.')
 
@@ -224,11 +295,17 @@ def get_and_delete_instance(arguments):
             exec_cmd(cmd, echo=False)
 
 
-def exec_cmd(cmd, echo=False):
-    if echo is False:
-        subprocess.check_call(cmd, stdout=None, stderr=None)
-    else:
-        subprocess.check_call(cmd)
+def exec_cmd(cmd, echo=False, dry_run=False):
+    print(f'Running: {" ".join(cmd)}')
+    if dry_run is False:
+        if echo is False:
+            return subprocess.check_call(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+            )
+        else:
+            return subprocess.check_call(cmd)
 
 
 def compose(arguments):
@@ -241,25 +318,35 @@ def compose(arguments):
             (prepare_sudo_cmd(arguments), True),
             (prepare_rm_cmd(arguments), False),
             (prepare_stop_instance_cmd(arguments), False),
-            (prepare_create_image_cmd(arguments), False)
         ]
 
-        print(f'Download {arguments.script} to {arguments.destination}')
+        print(
+            f'Running: Download of {arguments.script} '
+            f'to {arguments.destination}'
+        )
         if arguments.dry_run is False:
             download_script(arguments)
 
         cmd = prepare_gcloud_auth_cmd(arguments)
-        print(f'Running: {" ".join(cmd)}')
         if arguments.dry_run is False:
-            exec_cmd(cmd, echo=False)
+            exec_cmd(
+                cmd,
+                echo=False,
+                dry_run=arguments.dry_run
+            )
 
         get_or_create_instance(arguments)
 
         for cmd, echo in PREPARED_CMDS:
-            print(f'Running: {" ".join(cmd)}')
             if arguments.dry_run is False:
-                exec_cmd(cmd, echo=echo)
+                exec_cmd(
+                    cmd,
+                    echo=echo,
+                    dry_run=arguments.dry_run
+                )
 
+        image_delete_if_exists(arguments)
+        image_create(arguments)
         get_and_delete_instance(arguments)
     except subprocess.CalledProcessError as error:
         print(error)
