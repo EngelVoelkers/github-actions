@@ -508,6 +508,8 @@ def parse_args(argv=None):
 
     args = parser.parse_args(argv)
 
+    args.verbosity = args.v
+
     args.image_name = args.image_name.lower()
 
     return args
