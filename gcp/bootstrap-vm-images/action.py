@@ -15,12 +15,18 @@ from argparse import ArgumentParser
 
 
 def download_script(arguments):
-    request = requests.get(arguments.script)
-    with open(arguments.destination, 'w') as fh:
-        fh.write(request.content.decode('utf8'))
+    if arguments.verbosity >= 1:
+        print(
+            f'Running: Download of {arguments.script} '
+            f'to {arguments.destination}'
+        )
+    if arguments.dry_run is False:
+        request = requests.get(arguments.script)
+        with open(arguments.destination, 'w') as fh:
+            fh.write(request.content.decode('utf8'))
 
 
-def prepare_gcloud_auth_cmd(arguments):
+def prepare_auth_cmd():
     credentials = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', None)
     if credentials is None:
         raise EnvironmentError('Can not find GOOGLE_APPLICATION_CREDENTIALS')
@@ -35,7 +41,16 @@ def prepare_gcloud_auth_cmd(arguments):
     return cmd
 
 
-def prepare_get_instance_cmd(arguments):
+def auth_cmd(arguments):
+    return exec_cmd(
+        prepare_auth_cmd(),
+        echo=False,
+        dry_run=arguments.dry_run,
+        verbosity=arguments.verbosity
+    )
+
+
+def prepare_get_instance_cmd():
     cmd = [
         'gcloud',
         'compute',
@@ -47,6 +62,15 @@ def prepare_get_instance_cmd(arguments):
     ]
 
     return cmd
+
+
+def get_instance_cmd(arguments):
+    return exec_cmd(
+        prepare_get_instance_cmd(),
+        echo=False,
+        dry_run=arguments.dry_run,
+        verbosity=arguments.verbosity
+    )
 
 
 def prepare_create_instance_cmd(arguments):
@@ -78,6 +102,15 @@ def prepare_create_instance_cmd(arguments):
     return cmd
 
 
+def create_instance_cmd(arguments):
+    return exec_cmd(
+        prepare_create_instance_cmd(arguments),
+        echo=False,
+        dry_run=arguments.dry_run,
+        verbosity=arguments.verbosity
+    )
+
+
 def prepare_delete_instance_cmd(arguments):
     cmd = [
         'gcloud',
@@ -94,6 +127,15 @@ def prepare_delete_instance_cmd(arguments):
     return cmd
 
 
+def delete_instance_cmd(arguments):
+    return exec_cmd(
+        prepare_delete_instance_cmd(arguments),
+        echo=False,
+        dry_run=arguments.dry_run,
+        verbosity=arguments.verbosity
+    )
+
+
 def prepare_stop_instance_cmd(arguments):
     cmd = [
         'gcloud',
@@ -106,6 +148,15 @@ def prepare_stop_instance_cmd(arguments):
     ]
 
     return cmd
+
+
+def stop_instance_cmd(arguments):
+    return exec_cmd(
+        prepare_stop_instance_cmd(arguments),
+        echo=False,
+        dry_run=arguments.dry_run,
+        verbosity=arguments.verbosity
+    )
 
 
 def prepare_scp_copy_cmd(arguments):
@@ -124,6 +175,15 @@ def prepare_scp_copy_cmd(arguments):
     return cmd
 
 
+def scp_copy_cmd(arguments):
+    return exec_cmd(
+        prepare_scp_copy_cmd(arguments),
+        echo=False,
+        dry_run=arguments.dry_run,
+        verbosity=arguments.verbosity
+    )
+
+
 def prepare_chmod_cmd(arguments):
     cmd = [
         'gcloud',
@@ -138,6 +198,15 @@ def prepare_chmod_cmd(arguments):
     ]
 
     return cmd
+
+
+def chmod_cmd(arguments):
+    return exec_cmd(
+        prepare_chmod_cmd(arguments),
+        echo=False,
+        dry_run=arguments.dry_run,
+        verbosity=arguments.verbosity
+    )
 
 
 def prepare_sudo_cmd(arguments):
@@ -162,6 +231,15 @@ def prepare_sudo_cmd(arguments):
     return cmd
 
 
+def sudo_cmd(arguments):
+    return exec_cmd(
+        prepare_sudo_cmd(arguments),
+        echo=True,
+        dry_run=arguments.dry_run,
+        verbosity=arguments.verbosity
+    )
+
+
 def prepare_rm_cmd(arguments):
     cmd = [
         'gcloud',
@@ -178,6 +256,15 @@ def prepare_rm_cmd(arguments):
     return cmd
 
 
+def rm_cmd(arguments):
+    return exec_cmd(
+        prepare_rm_cmd(arguments),
+        echo=False,
+        dry_run=arguments.dry_run,
+        verbosity=arguments.verbosity
+    )
+
+
 def prepare_get_image_cmd(arguments):
     cmd = [
         'gcloud',
@@ -189,6 +276,15 @@ def prepare_get_image_cmd(arguments):
     ]
 
     return cmd
+
+
+def get_image_cmd(arguments):
+    return exec_cmd(
+        prepare_get_image_cmd(arguments),
+        echo=False,
+        dry_run=arguments.dry_run,
+        verbosity=arguments.verbosity
+    )
 
 
 def prepare_create_image_cmd(arguments):
@@ -207,6 +303,15 @@ def prepare_create_image_cmd(arguments):
     return cmd
 
 
+def create_image_cmd(arguments):
+    return exec_cmd(
+        prepare_create_image_cmd(arguments),
+        echo=False,
+        dry_run=arguments.dry_run,
+        verbosity=arguments.verbosity
+    )
+
+
 def prepare_delete_image_cmd(arguments):
     cmd = [
         'gcloud',
@@ -221,45 +326,18 @@ def prepare_delete_image_cmd(arguments):
     return cmd
 
 
+def delete_image_cmd(arguments):
+    return exec_cmd(
+        prepare_delete_image_cmd(arguments),
+        echo=False,
+        dry_run=arguments.dry_run,
+        verbosity=arguments.verbosity
+    )
+
+
 def image_exists(arguments):
-    cmd = prepare_get_image_cmd(arguments)
     try:
-        exec_cmd(
-            cmd,
-            echo=False,
-            dry_run=arguments.dry_run,
-            verbosity=arguments.verbosity
-        )
-    except subprocess.CalledProcessError:
-        return False
-    else:
-        return True
-
-
-def image_delete(arguments):
-    cmd = prepare_delete_image_cmd(arguments)
-    try:
-        exec_cmd(
-            cmd,
-            echo=False,
-            dry_run=arguments.dry_run,
-            verbosity=arguments.verbosity
-        )
-    except subprocess.CalledProcessError:
-        return False
-    else:
-        return True
-
-
-def image_create(arguments):
-    cmd = prepare_create_image_cmd(arguments)
-    try:
-        exec_cmd(
-            cmd,
-            echo=False,
-            dry_run=arguments.dry_run,
-            verbosity=arguments.verbosity
-        )
+        get_image_cmd(arguments)
     except subprocess.CalledProcessError:
         return False
     else:
@@ -268,50 +346,26 @@ def image_create(arguments):
 
 def image_delete_if_exists(arguments):
     if image_exists(arguments):
-        image_delete(arguments)
+        delete_image_cmd(arguments)
     return True
 
 
 def get_or_create_instance(arguments):
     try:
-        cmd = prepare_get_instance_cmd(arguments)
-        exec_cmd(
-            cmd,
-            echo=False,
-            dry_run=arguments.dry_run,
-            verbosity=arguments.verbosity
-        )
+        get_instance_cmd(arguments)
     except subprocess.CalledProcessError:
-        cmd = prepare_create_instance_cmd(arguments)
-        exec_cmd(
-            cmd,
-            echo=False,
-            dry_run=arguments.dry_run,
-            verbosity=arguments.verbosity
-        )
+        create_instance_cmd(arguments)
     else:
         print(f'Instance with name "{arguments.image_name}" already exists.')
 
 
 def get_and_delete_instance(arguments):
     try:
-        cmd = prepare_get_instance_cmd(arguments)
-        exec_cmd(
-            cmd,
-            echo=False,
-            dry_run=arguments.dry_run,
-            verbosity=arguments.verbosity
-        )
+        get_instance_cmd(arguments)
     except subprocess.CalledProcessError:
         print(f'Instance with name "{arguments.image_name}" does not exists.')
     else:
-        cmd = prepare_delete_instance_cmd(arguments)
-        exec_cmd(
-            cmd,
-            echo=False,
-            dry_run=arguments.dry_run,
-            verbosity=arguments.verbosity
-        )
+        delete_instance_cmd(arguments)
 
 
 def exec_cmd(cmd, echo=False, dry_run=False, verbosity=0):
@@ -332,42 +386,22 @@ def exec_cmd(cmd, echo=False, dry_run=False, verbosity=0):
 def compose(arguments):
     fd, destination = tempfile.mkstemp()
     arguments.destination = destination
+    all_cmds = [
+        auth_cmd,
+        get_or_create_instance,
+        download_script,
+        scp_copy_cmd,
+        chmod_cmd,
+        sudo_cmd,
+        rm_cmd,
+        stop_instance_cmd,
+        image_delete_if_exists,
+        create_image_cmd,
+        get_and_delete_instance
+    ]
     try:
-        PREPARED_CMDS = [
-            (prepare_scp_copy_cmd(arguments), False),
-            (prepare_chmod_cmd(arguments), False),
-            (prepare_sudo_cmd(arguments), True),
-            (prepare_rm_cmd(arguments), False),
-            (prepare_stop_instance_cmd(arguments), False),
-        ]
-
-        print(
-            f'Running: Download of {arguments.script} '
-            f'to {arguments.destination}'
-        )
-        if arguments.dry_run is False:
-            download_script(arguments)
-
-        cmd = prepare_gcloud_auth_cmd(arguments)
-        exec_cmd(
-            cmd,
-            echo=False,
-            dry_run=arguments.dry_run,
-            verbosity=arguments.verbosity
-        )
-
-        get_or_create_instance(arguments)
-
-        for cmd, echo in PREPARED_CMDS:
-            exec_cmd(
-                cmd,
-                echo=echo,
-                dry_run=arguments.dry_run
-            )
-
-        image_delete_if_exists(arguments)
-        image_create(arguments)
-        get_and_delete_instance(arguments)
+        for cmd in all_cmds:
+            cmd(arguments)
     except subprocess.CalledProcessError as error:
         print(error)
         sys.exit(1)
@@ -507,11 +541,8 @@ def parse_args(argv=None):
     )
 
     args = parser.parse_args(argv)
-
     args.verbosity = args.v
-
     args.image_name = args.image_name.lower()
-
     return args
 
 
