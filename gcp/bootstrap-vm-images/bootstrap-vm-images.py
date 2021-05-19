@@ -118,7 +118,7 @@ def prepare_scp_copy_cmd(arguments):
         f'--project={arguments.project}',
         f'--ssh-key-expire-after={arguments.ssh_key_expire}',
         f'{arguments.destination}',
-        f'bootstrapper@{arguments.image_name}:bootstrap.sh'
+        f'bootstrapper@{arguments.image_name}:bootstrap'
     ]
 
     return cmd
@@ -134,7 +134,7 @@ def prepare_chmod_cmd(arguments):
         f'--zone={arguments.zone}',
         f'--project={arguments.project}',
         f'--ssh-key-expire-after={arguments.ssh_key_expire}',
-        f'--command="\"chmod 0750 ./bootstrap.sh\""'
+        f'--command="\"chmod 0750 ./bootstrap\""'
     ]
 
     return cmd
@@ -157,7 +157,7 @@ def prepare_sudo_cmd(arguments):
     else:
         variables = ''
 
-    cmd.append(f'--command="\"{variables}sudo -E ./bootstrap.sh\""')
+    cmd.append(f'--command="\"{variables}sudo -E ./bootstrap\""')
 
     return cmd
 
@@ -227,7 +227,8 @@ def image_exists(arguments):
         exec_cmd(
             cmd,
             echo=False,
-            dry_run=arguments.dry_run
+            dry_run=arguments.dry_run,
+            verbosity=arguments.verbosity
         )
     except subprocess.CalledProcessError:
         return False
@@ -241,7 +242,8 @@ def image_delete(arguments):
         exec_cmd(
             cmd,
             echo=False,
-            dry_run=arguments.dry_run
+            dry_run=arguments.dry_run,
+            verbosity=arguments.verbosity
         )
     except subprocess.CalledProcessError:
         return False
@@ -255,7 +257,8 @@ def image_create(arguments):
         exec_cmd(
             cmd,
             echo=False,
-            dry_run=arguments.dry_run
+            dry_run=arguments.dry_run,
+            verbosity=arguments.verbosity
         )
     except subprocess.CalledProcessError:
         return False
@@ -272,10 +275,20 @@ def image_delete_if_exists(arguments):
 def get_or_create_instance(arguments):
     try:
         cmd = prepare_get_instance_cmd(arguments)
-        exec_cmd(cmd, echo=False, dry_run=arguments.dry_run)
+        exec_cmd(
+            cmd,
+            echo=False,
+            dry_run=arguments.dry_run,
+            verbosity=arguments.verbosity
+        )
     except subprocess.CalledProcessError:
         cmd = prepare_create_instance_cmd(arguments)
-        exec_cmd(cmd, echo=False, dry_run=arguments.dry_run)
+        exec_cmd(
+            cmd,
+            echo=False,
+            dry_run=arguments.dry_run,
+            verbosity=arguments.verbosity
+        )
     else:
         print(f'Instance with name "{arguments.image_name}" already exists.')
 
@@ -283,22 +296,29 @@ def get_or_create_instance(arguments):
 def get_and_delete_instance(arguments):
     try:
         cmd = prepare_get_instance_cmd(arguments)
-        print(f'Running: {" ".join(cmd)}')
-        if arguments.dry_run is False:
-            exec_cmd(cmd, echo=False)
+        exec_cmd(
+            cmd,
+            echo=False,
+            dry_run=arguments.dry_run,
+            verbosity=arguments.verbosity
+        )
     except subprocess.CalledProcessError:
-        print(f'Instance with name "{arguments.image_name}" already deleted.')
+        print(f'Instance with name "{arguments.image_name}" does not exists.')
     else:
         cmd = prepare_delete_instance_cmd(arguments)
+        exec_cmd(
+            cmd,
+            echo=False,
+            dry_run=arguments.dry_run,
+            verbosity=arguments.verbosity
+        )
+
+
+def exec_cmd(cmd, echo=False, dry_run=False, verbosity=0):
+    if verbosity >= 1:
         print(f'Running: {" ".join(cmd)}')
-        if arguments.dry_run is False:
-            exec_cmd(cmd, echo=False)
-
-
-def exec_cmd(cmd, echo=False, dry_run=False):
-    print(f'Running: {" ".join(cmd)}')
     if dry_run is False:
-        if echo is False:
+        if echo is False or verbosity >= 2:
             return subprocess.check_call(
                 cmd,
                 stdout=subprocess.PIPE,
@@ -306,6 +326,7 @@ def exec_cmd(cmd, echo=False, dry_run=False):
             )
         else:
             return subprocess.check_call(cmd)
+    return True
 
 
 def compose(arguments):
@@ -328,22 +349,21 @@ def compose(arguments):
             download_script(arguments)
 
         cmd = prepare_gcloud_auth_cmd(arguments)
-        if arguments.dry_run is False:
-            exec_cmd(
-                cmd,
-                echo=False,
-                dry_run=arguments.dry_run
-            )
+        exec_cmd(
+            cmd,
+            echo=False,
+            dry_run=arguments.dry_run,
+            verbosity=arguments.verbosity
+        )
 
         get_or_create_instance(arguments)
 
         for cmd, echo in PREPARED_CMDS:
-            if arguments.dry_run is False:
-                exec_cmd(
-                    cmd,
-                    echo=echo,
-                    dry_run=arguments.dry_run
-                )
+            exec_cmd(
+                cmd,
+                echo=echo,
+                dry_run=arguments.dry_run
+            )
 
         image_delete_if_exists(arguments)
         image_create(arguments)
@@ -351,12 +371,14 @@ def compose(arguments):
     except subprocess.CalledProcessError as error:
         print(error)
         sys.exit(1)
-
     finally:
         os.unlink(destination)
 
 
-def getopts():
+def parse_args(argv=None):
+    if argv is None:
+        argv = sys.argv[1:]
+
     parser = ArgumentParser()
 
     parser.add_argument(
@@ -366,28 +388,32 @@ def getopts():
     )
 
     parser.add_argument(
-        '-t',
+        '-v',
+        action='count',
+        required=False,
+        default=0,
+        help='Set this option to get more output. Can be used multiple times.'
+    )
+
+    parser.add_argument(
         '--tags',
         help='Comma delimited list of network tags.',
         required=False
     )
 
     parser.add_argument(
-        '-s',
         '--scopes',
         help='Comma delimited list of GCP scopes to use for the bootstrap vm.',
         required=False
     )
 
     parser.add_argument(
-        '-l',
         '--labels',
         help='Comma delimeted list of key=value pairs.',
         required=False
     )
 
     parser.add_argument(
-        '-f',
         '--from-image',
         help='The base image you want to fork from. Default: %(default)s',
         default='debian-10',
@@ -395,14 +421,12 @@ def getopts():
     )
 
     parser.add_argument(
-        '-g',
         '--from-image-project',
         default='debian-cloud',
         help='The project the base image is located. Default: %(default)s',
     )
 
     parser.add_argument(
-        '-v',
         '--variables',
         help=(
             'Comma delimited key=value pairs that could be used within '
@@ -435,62 +459,54 @@ def getopts():
     required_group = parser.add_argument_group(title='required arguments')
 
     required_group.add_argument(
-        '-i',
         '--image-name',
         help='The name of the resulting image.',
         required=True
     )
 
     required_group.add_argument(
-        '-z',
         '--zone',
         help='The GCP Zone ID.',
         required=True
     )
 
     required_group.add_argument(
-        '-n',
         '--network',
         help='The Network ID to use.',
         required=True
     )
 
     required_group.add_argument(
-        '-u',
         '--sub-network',
         help='The subnetwork id to use.',
         required=True
     )
 
     required_group.add_argument(
-        '-p',
         '--project',
         help='The GCP Project ID to use.',
         required=True
     )
 
     required_group.add_argument(
-        '-e',
         '--script',
         help='The http path to the bootstrap script file.',
         required=True
     )
 
     required_group.add_argument(
-        '-o',
         '--os-family',
         help='The os family to use when storing the new image.',
         required=True
     )
 
     required_group.add_argument(
-        '-m',
         '--machine-type',
         help='The machine type to use (e.g. e2-standard-2).',
         required=True
     )
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     args.image_name = args.image_name.lower()
 
@@ -498,6 +514,6 @@ def getopts():
 
 
 if __name__ == '__main__':
-    args = getopts()
+    args = parse_args()
     compose(args)
     sys.exit(0)
