@@ -1,6 +1,6 @@
 FROM google/cloud-sdk:alpine
 
-COPY deprecate-vm-images.py /entrypoint
+COPY action.py /entrypoint
 
 RUN chmod 0555 /entrypoint
 
