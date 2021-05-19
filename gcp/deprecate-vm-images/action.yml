@@ -21,7 +21,7 @@ runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
-    - ${{ inputs.replacement }}
-    - ${{ inputs.os_family }}
-    - ${{ inputs.project }}
-    - ${{ inputs.delete_in }}
+    - "--replacement=${{ inputs.replacement }}"
+    - "--os-family=${{ inputs.os_family }}"
+    - "--project=${{ inputs.project }}"
+    - "--delete-in=${{ inputs.delete_in }}"
