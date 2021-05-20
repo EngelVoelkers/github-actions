@@ -154,7 +154,7 @@ def _diff_rule(arguments, existing):
 
 
 def compose(arguments):
-    # _auth(arguments)
+    _auth(arguments)
     rule = _call(
         firewall.describe.bake(arguments.name, project=arguments.project),
         False,
