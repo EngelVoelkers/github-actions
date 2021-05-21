@@ -1,0 +1,44 @@
+name: 'GCP Firewall rule'
+description: 'Create or Update a GCP firewall rule'
+inputs:
+  name:
+    description: 'The Name of the firewall rule.'
+    required: true
+  tcp:
+    description: 'TCP ports to open (comma separated, for ranges use e.g.: 2000-2500).'
+    required: true
+  source:
+    description: 'The Source IP address (comma separated, CIDR notated).'
+    required: true
+  tags:
+    description: 'The target tags (comma separated).'
+    required: True
+  network:
+    description: 'The target Network.'
+    required: True
+  project:
+    description: 'The gcp project id.'
+    required: true
+  udp:
+    description: 'UDP ports to open (comma separated, for ranges use e.g.: 2000-2500).'
+    required: false
+    default: ''
+  description:
+    description: 'Description of the firewall rule.'
+    required: false
+    default: ''
+outputs:
+  json_out:
+    description: 'The json representation of the firewall rule.'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - "--name=${{ inputs.name }}"
+    - "--tcp=${{ inputs.tcp }}"
+    - "--source=${{ inputs.source }}"
+    - "--tags=${{ inputs.tags }}"
+    - "--network=${{ inputs.network }}"
+    - "--project=${{ inputs.project }}"
+    - "--udp=${{ inputs.udp }}"
+    - "--description=${{ inputs.description }}"
