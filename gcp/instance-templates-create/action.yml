@@ -1,0 +1,60 @@
+name: 'Create VM Templates'
+description: 'This action will create an instances template that you can use for creating Instances and Instances Groups. It will download a script from a URL and use this as a vm startup script.'
+inputs:
+  name:
+    description: 'The Name of the Template.'
+    required: true
+  region:
+    description: 'The region of the new template.'
+    required: true
+  project:
+    description: 'The gcp project id.'
+    required: true
+  network:
+    description: 'The Network used for VMs created with this template.'
+    required: true
+  sub_network:
+    description: 'The Sub Network used for VMs created with this template.'
+    required: true
+  machine_type:
+    description: 'The Machine Type used for VMs created with this template'
+    required: true
+  image_family:
+    description: 'The name of the image-family to use. If image-family or image is not given, the project Default Image Family will be used (e.g. debian-10).'
+    required: false
+  image:
+    description: 'The name of the image to use. If image or image-family is not given, the project Default Image Family will be used (e.g. debian-10).'
+    required: false
+  image_project:
+    description: 'The project where the image or image family is located. If not given the template project will be used.'
+    required: false
+  labels:
+    description: 'Comma delimited list of key=value pairs.'
+    required: false
+  scopes:
+    description: 'Comma delimited list of GCP scopes.'
+    required: false
+  tags:
+    description: 'Comma delimited list of network tags.'
+    required: false
+  startup_script:
+    description: 'The http path to a startup script file.'
+    required: false
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - "--name=${{ inputs.name }}"
+    - "--project=${{ inputs.project }}"
+    - "--region=${{ inputs.region }}"
+    - "--network=${{ inputs.network }}"
+    - "--sub-network=${{ inputs.sub_network }}"
+    - "--machine-type=${{ inputs.machine_type }}"
+    - "--startup-script=${{ inputs.startup_script }}"
+    - "--tags=${{ inputs.tags }}"
+    - "--scopes=${{ inputs.scopes }}"
+    - "--labels=${{ inputs.labels }}"
+    - "--image-project=${{ inputs.image_project }}"
+    - "--image=${{ inputs.image }}"
+    - "--image-family=${{ inputs.image_family }}"
