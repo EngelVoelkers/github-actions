@@ -78,11 +78,12 @@ def auth(arguments):
 def template_create(arguments):
     cmd = template.create.bake(
         arguments.name,
+        'global',
         region=arguments.region,
         network=arguments.network,
         subnet=arguments.sub_network,
         machine_type=arguments.machine_type,
-        boot_disk_type='pd-balanced'
+        boot_disk_type='pd-balanced',
     )
 
     if arguments.startup_script:
