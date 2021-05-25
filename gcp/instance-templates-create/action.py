@@ -81,7 +81,8 @@ def template_create(arguments):
         region=arguments.region,
         network=arguments.network,
         subnet=arguments.sub_network,
-        machine_type=arguments.machine_type
+        machine_type=arguments.machine_type,
+        boot_disk_type='pd-balanced'
     )
 
     if arguments.startup_script:
@@ -111,12 +112,15 @@ def template_create(arguments):
     if arguments.image:
         cmd = cmd.bake(
             image=arguments.image,
-            image_project=arguments.image_project
         )
 
     if arguments.image_family:
         cmd = cmd.bake(
             image_family=arguments.image_family,
+        )
+
+    if arguments.image or arguments.image_family:
+        cmd = cmd.bake(
             image_project=arguments.image_project
         )
 
