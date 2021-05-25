@@ -78,7 +78,7 @@ def auth(arguments):
 def template_create(arguments):
     cmd = template.create.bake(
         arguments.name,
-        'global',
+        '--global',
         region=arguments.region,
         network=arguments.network,
         subnet=arguments.sub_network,
