@@ -40,7 +40,7 @@ def download_script(arguments):
         request = requests.get(arguments.startup_script)
         result = f'{request.status_code} - {arguments.startup_script} {request.reason}'
 
-        if request.status_code is not 200:
+        if request.status_code != 200:
             raise requests.exceptions.RequestException(
                 f'{result}'
             )

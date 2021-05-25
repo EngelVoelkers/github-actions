@@ -22,24 +22,31 @@ inputs:
   image_family:
     description: 'The name of the image-family to use. If image-family or image is not given, the project Default Image Family will be used (e.g. debian-10).'
     required: false
+    default: ''
   image:
     description: 'The name of the image to use. If image or image-family is not given, the project Default Image Family will be used (e.g. debian-10).'
     required: false
+    default: ''
   image_project:
     description: 'The project where the image or image family is located. If not given the template project will be used.'
     required: false
+    default: ''
   labels:
     description: 'Comma delimited list of key=value pairs.'
     required: false
+    default: ''
   scopes:
     description: 'Comma delimited list of GCP scopes.'
     required: false
+    default: ''
   tags:
     description: 'Comma delimited list of network tags.'
     required: false
+    default: ''
   startup_script:
     description: 'The http path to a startup script file.'
     required: false
+    default: ''
 
 runs:
   using: 'docker'
