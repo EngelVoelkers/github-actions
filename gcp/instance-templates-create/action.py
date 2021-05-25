@@ -119,10 +119,10 @@ def template_create(arguments):
             image_family=arguments.image_family,
         )
 
-    if arguments.image or arguments.image_family:
-        cmd = cmd.bake(
-            image_project=arguments.image_project
-        )
+    #if arguments.image or arguments.image_family:
+    #    cmd = cmd.bake(
+    #        image_project=arguments.image_project
+    #    )
 
     exec_cmd(
         cmd,
@@ -287,8 +287,8 @@ def parse_args(argv=None):
 
     arguments = parser.parse_args(argv)
     arguments.verbosity = arguments.v
-    if not arguments.image_project:
-        arguments.image_project = arguments.project
+    #if not arguments.image_project:
+    #    arguments.image_project = arguments.project
 
     if arguments.image_family and arguments.image:
         parser.exit(
